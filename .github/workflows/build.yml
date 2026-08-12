@@ -26,7 +26,7 @@ jobs:
             exit 1
           fi
           PROJECT_DIR=$(dirname "$PACKAGE_JSON")
-          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
           echo "Project found at: $PROJECT_DIR"
 
       - name: Set up Node.js
@@ -35,14 +35,17 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: cd "$PROJECT_DIR" && npm ci
+        run: cd "$PROJECT_DIR" && npm install
 
       - name: Build web app
         run: cd "$PROJECT_DIR" && npm run build
 
+      - name: Install Capacitor CLI
+        run: cd "$PROJECT_DIR" && npm install @capacitor/cli @capacitor/core @capacitor/android
+
       - name: Sync Capacitor
-        
-       run: cd "$PROJECT_DIR" && npx --yes @capacitor/cli sync android
+        run: cd "$PROJECT_DIR" && npx cap sync android
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
