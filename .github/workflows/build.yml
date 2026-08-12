@@ -13,20 +13,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Extract project ZIP
+        run: |
+          mkdir -p extracted
+          unzip -q project-bolt-sb1-rpedyp12.zip -d extracted
+
+      - name: Find project
+        run: |
+          PACKAGE_JSON=$(find extracted -name package.json -print -quit)
+          if [ -z "$PACKAGE_JSON" ]; then
+            echo "package.json not found inside ZIP"
+            exit 1
+          fi
+          PROJECT_DIR=$(dirname "$PACKAGE_JSON")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "Project found at: $PROJECT_DIR"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: cd "$PROJECT_DIR" && npm ci
 
       - name: Build web app
-        run: npm run build
+        run: cd "$PROJECT_DIR" && npm run build
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: cd "$PROJECT_DIR" && npx cap sync android
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -34,14 +49,14 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x android/gradlew
+      - name: Grant execute permission
+        run: chmod +x "$PROJECT_DIR/android/gradlew"
 
       - name: Build APK
-        run: cd android && ./gradlew assembleDebug
+        run: cd "$PROJECT_DIR/android" && ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: nexora-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.PROJECT_DIR }}/android/app/build/outputs/apk/debug/app-debug.apk
