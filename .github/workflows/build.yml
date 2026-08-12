@@ -43,8 +43,17 @@ jobs:
       - name: Install Capacitor CLI
         run: cd "$PROJECT_DIR" && npm install @capacitor/cli @capacitor/core @capacitor/android
 
+      -      - name: Add Android platform
+        run: |
+          cd "$PROJECT_DIR"
+          npm install @capacitor/android
+          npx cap add android
+
       - name: Sync Capacitor
-        run: cd "$PROJECT_DIR" && npx cap sync android
+        run: |
+          cd "$PROJECT_DIR"
+          npx cap sync android
+  
 
       - name: Set up Java
         uses: actions/setup-java@v4
