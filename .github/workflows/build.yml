@@ -41,8 +41,8 @@ jobs:
         run: cd "$PROJECT_DIR" && npm run build
 
       - name: Sync Capacitor
-        run: cd "$PROJECT_DIR" && npx cap sync android
-
+        
+       run: cd "$PROJECT_DIR" && npx --yes @capacitor/cli sync android
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
