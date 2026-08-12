@@ -45,7 +45,29 @@ jobs:
         run: |
           cd "$PROJECT_DIR"
           npm install @capacitor/cli @capacitor/core @capacitor/android
-
+      - name: Create Capacitor config
+            - name: Add Android platform
+        run: |
+          cd "$PROJECT_DIR"
+          npx cap add android 
+             - name: Sync Capacitor
+        run: |
+          cd "$PROJECT_DIR"
+          npx cap sync android
+        run: |
+          cd "$PROJECT_DIR"
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.nexora.app",
+            "appName": "Nexora",
+            "webDir": "dist"
+          }
+          EOF
+         
+            - name: Initialize Capacitor
+        run: |
+          cd "$PROJECT_DIR"
+          npx cap init Nexora com.nexora.app --web-dir dist --skip-config
       - name: Add Android platform
         run: |
           cd "$PROJECT_DIR"
