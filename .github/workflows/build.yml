@@ -18,18 +18,21 @@ jobs:
       - name: Find project
         run: |
           PACKAGE_JSON=$(find extracted -name package.json -print -quit)
+
           if [ -z "$PACKAGE_JSON" ]; then
-            echo "package.json not found inside ZIP"
+            echo "ERROR: package.json not found inside ZIP"
             exit 1
           fi
+
           PROJECT_DIR=$(dirname "$PACKAGE_JSON")
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
           echo "Project found at: $PROJECT_DIR"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: |
@@ -45,17 +48,11 @@ jobs:
         run: |
           cd "$PROJECT_DIR"
           npm install @capacitor/cli @capacitor/core @capacitor/android
+
       - name: Create Capacitor config
-            - name: Add Android platform
         run: |
           cd "$PROJECT_DIR"
-          npx cap add android 
-             - name: Sync Capacitor
-        run: |
-          cd "$PROJECT_DIR"
-          npx cap sync android
-        run: |
-          cd "$PROJECT_DIR"
+
           cat > capacitor.config.json <<'EOF'
           {
             "appId": "com.nexora.app",
@@ -63,11 +60,9 @@ jobs:
             "webDir": "dist"
           }
           EOF
-         
-            - name: Initialize Capacitor
-        run: |
-          cd "$PROJECT_DIR"
-          npx cap init Nexora com.nexora.app --web-dir dist --skip-config
+
+          echo "Capacitor configuration created."
+
       - name: Add Android platform
         run: |
           cd "$PROJECT_DIR"
@@ -84,7 +79,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Grant execute permission
+      - name: Grant Gradle permission
         run: |
           chmod +x "$PROJECT_DIR/android/gradlew"
 
